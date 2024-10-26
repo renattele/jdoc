@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import jdoc.presentation.components.MarkdownTextArea?>
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="jdoc.presentation.DocumentController" fx:id="container" style="-fx-background-color: -fx-surface">
+    <padding>
+        <Insets bottom="20.0" left="60.0" right="60.0" top="20.0"/>
+    </padding>
+    <HBox alignment="CENTER_RIGHT" fx:id="clientsContainer" spacing="8">
+        <TextField fx:id="clientName"
+                   promptText="Your username"
+                   focusTraversable="false"
+                   />
+    </HBox>
+    <MarkdownTextArea fx:id="area" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: -fx-surface; -fx-text-fill: -fx-primary"/>
+</VBox>
