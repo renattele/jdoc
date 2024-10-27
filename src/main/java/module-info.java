@@ -8,6 +8,8 @@ module jdoc {
     requires com.google.gson;
     requires io.reactivex.rxjava3;
     requires io.github.javadiffutils;
+    requires java.prefs;
+    requires java.diff.utils.jgit;
 
     exports jdoc.domain;
     opens jdoc.domain to javafx.fxml;

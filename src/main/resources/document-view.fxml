@@ -5,6 +5,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import jdoc.presentation.components.MarkdownTextArea?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ProgressBar?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="jdoc.presentation.DocumentController" fx:id="container" style="-fx-background-color: -fx-surface">
     <padding>
@@ -15,6 +18,7 @@
                    promptText="Your username"
                    focusTraversable="false"
                    />
+        <ProgressIndicator fx:id="progressIndicator" visible="false"/>
     </HBox>
     <MarkdownTextArea fx:id="area" VBox.vgrow="ALWAYS"
                       style="-fx-background-color: -fx-surface; -fx-text-fill: -fx-primary"/>

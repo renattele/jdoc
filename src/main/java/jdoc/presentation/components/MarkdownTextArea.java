@@ -92,6 +92,7 @@ public class MarkdownTextArea extends StyleClassedTextArea {
     }
 
     private void render() {
+        System.out.println("TEXT: " + getText().replace("\n", "\\n"));
         clearStyle(0, getText().length());
         for (CssTextMatch match : matches) {
             renderWithPattern(match.regex(), match.cssClass());

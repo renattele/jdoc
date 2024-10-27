@@ -9,22 +9,29 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class App extends Application {
-	private static Stage primaryStage;
+	public static Stage stage;
 	@Override
 	public void start(Stage stage) {
-		primaryStage = stage;
-		navigate("/document-view.fxml");
+		App.stage = stage;
+		navigate("/document-view.fxml", "http://localhost:8080");
 		stage.show();
 	}
 
-	public static void navigate(String file) {
+	public static void navigate(String file, Object argument) {
         try {
-            var scene = (Parent) FXMLLoader.load(App.class.getResource(file));
+			var loader = new FXMLLoader(App.class.getResource(file));
+            var scene = (Parent) loader.load();
+			Controller<Object> controller = loader.getController();
+			controller.setArgument(argument);
+			controller.init();
 			scene.getStylesheets().add("base.css");
-			primaryStage.setScene(new Scene(scene));
+			stage.setScene(new Scene(scene));
         } catch (IOException e) {
 			e.printStackTrace();
         }
+	}
+	public static void navigate(String file) {
+		navigate(file, null);
 	}
 
 	public static void main(String[] args) {

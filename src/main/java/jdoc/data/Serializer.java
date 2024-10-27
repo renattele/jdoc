@@ -1,4 +1,4 @@
-package jdoc.presentation;
+package jdoc.data;
 
 import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.ChangeDelta;
