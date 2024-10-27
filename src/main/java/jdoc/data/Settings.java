@@ -7,13 +7,21 @@ import java.util.prefs.Preferences;
 public class Settings {
     private static final String RECENT_KEY = "recent";
     private static final Preferences preferences = Preferences.userNodeForPackage(Settings.class);
+
     public static Preferences get() {
         return preferences;
     }
 
     public static void addRecent(String url) {
         var recent = getRecent();
+        recent.remove(url);
         recent.add(url);
+        get().put(RECENT_KEY, Serializer.gson().toJson(recent));
+    }
+
+    public static void deleteRecent(String url) {
+        var recent = getRecent();
+        recent.remove(url);
         get().put(RECENT_KEY, Serializer.gson().toJson(recent));
     }
 

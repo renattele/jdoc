@@ -7,6 +7,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import jdoc.data.Settings;
+import jdoc.presentation.components.RecentLocationButton;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChooserController extends Controller<Object> {
     @FXML
@@ -30,12 +34,25 @@ public class ChooserController extends Controller<Object> {
     }
 
     private void updateRecentUrls() {
-        var recent = Settings.getRecent();
+        var recent = new java.util.ArrayList<>(Settings
+                .getRecent()
+                .stream()
+                .collect(Collectors.toMap(i -> i, i -> i))
+                .entrySet()
+                .stream()
+                .toList());
+        recent.add(0, Map.entry("http://localhost", "Host"));
         var children = recentContainer.getChildren();
-        children.removeIf(child -> child instanceof Button);
-        for (String url : recent) {
-            var button = new Button(url);
-            button.setOnMouseClicked(event -> App.navigate("/document-view.fxml", url));
+        children.clear();
+        for (Map.Entry<String, String> entry : recent) {
+            var url = entry.getKey();
+            var name = entry.getValue();
+            var button = new RecentLocationButton(name);
+            button.setOnClick(event -> App.navigate("/document-view.fxml", url));
+            button.setOnDelete(event -> {
+                Settings.deleteRecent(url);
+                updateRecentUrls();
+            });
             children.add(button);
         }
     }

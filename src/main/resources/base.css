@@ -66,3 +66,9 @@
     -fx-background-color: -fx-surface-variant;
     -fx-background-radius: 18;
 }
+
+.recent-location-button {
+    -fx-background-color: -fx-surface-variant;
+    -fx-background-radius: 18;
+    -fx-padding: 8;
+}

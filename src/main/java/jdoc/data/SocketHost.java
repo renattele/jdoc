@@ -10,12 +10,15 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Objects;
 
 public class SocketHost implements Host, Runnable {
     private final int port;
     private final FlowableList<ClientHandler> clients = new FlowableList<>();
     private final PublishProcessor<Message> messages = PublishProcessor.create();
     private final Flowable<Message> messagesCached = messages.cache();
+    private final PublishProcessor<ClientHandler> newClients = PublishProcessor.create();
+    private final Flowable<ClientHandler> newClientsCached = newClients.cache();
 
     public SocketHost(int port) {
         this.port = port;
@@ -39,6 +42,7 @@ public class SocketHost implements Host, Runnable {
                 var handler = new ClientHandler(clientSocket);
                 new Thread(handler).start();
                 clients.add(handler);
+                newClients.onNext(handler);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,8 +57,13 @@ public class SocketHost implements Host, Runnable {
     @Override
     public Flowable<List<String>> clients() {
         return clients.flowable().map(clients ->
-                clients.stream().map(client -> client.socket.getRemoteSocketAddress().toString()).toList()
+                clients.stream().map(client -> client.addr).toList()
         );
+    }
+
+    @Override
+    public Flowable<String> newClients() {
+        return newClientsCached.map(client -> client.addr);
     }
 
     @Override
@@ -64,15 +73,27 @@ public class SocketHost implements Host, Runnable {
         }
     }
 
+    @Override
+    public void send(String addr, Message message) {
+        for (ClientHandler client: clients) {
+            if (Objects.equals(client.addr, addr)) {
+                client.send(message);
+                return;
+            }
+        }
+    }
+
     private class ClientHandler implements Runnable {
         private final Socket socket;
         private final InputStream in;
         private final OutputStream out;
+        private final String addr;
 
         ClientHandler(Socket socket) throws IOException {
             this.socket = socket;
             in = new BufferedInputStream(socket.getInputStream());
             out = new BufferedOutputStream(socket.getOutputStream());
+            addr = socket.getRemoteSocketAddress().toString();
         }
 
         @Override

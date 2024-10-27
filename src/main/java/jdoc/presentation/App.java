@@ -13,7 +13,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage stage) {
 		App.stage = stage;
-		navigate("/document-view.fxml", "http://localhost:8080");
+		navigate("/chooser-view.fxml");
 		stage.show();
 	}
 

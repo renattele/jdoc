@@ -5,6 +5,7 @@ import com.github.difflib.algorithm.jgit.HistogramDiff;
 import com.github.difflib.patch.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -50,20 +51,25 @@ public class DocumentController extends Controller<String> {
     private final Gson gson = Serializer.gson();
     private Client client;
     private final PublishProcessor<String> text = PublishProcessor.create();
+    private Host host;
 
     @Override
     public void init() {
         VBox.setVgrow(container, Priority.ALWAYS);
-        var host = new SocketHost(8080);
+        host = new SocketHost(8080);
         new HostManager(host, gson);
         try {
             var uri = URI.create(argument);
-            client = new SocketClient(uri.getHost(), uri.getPort());
+            var port = uri.getPort() < 0 ? 8080 : uri.getPort();
+            client = new SocketClient(uri.getHost(), port);
             var clientManager = new ClientManager(client, gson);
-            clientManager.allClients().subscribe(this::manageAvatars);
+            clientManager.allClients().subscribe(this::manageAllClients);
             clientName.textProperty().addListener((observable, oldValue, newValue) -> manageUsername(newValue));
             area.textProperty().addListener((observable, oldValue, newValue) -> manageTextChanges(oldValue, newValue));
             client.incoming().subscribe(this::manageIncomingChanges);
+            host.newClients().subscribe(client -> {
+                host.send(client, new Message(Message.GET, area.getText()));
+            });
             text.debounce(2000, TimeUnit.MILLISECONDS).subscribe(this::save);
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,8 +100,9 @@ public class DocumentController extends Controller<String> {
     }
 
     private void manageIncomingChanges(Message message) {
-        if (message.type() == Message.EDIT) {
-            System.out.println("RECEIVE");
+        if (message.type() == Message.GET) {
+            updateText(message.dataString());
+        } else if (message.type() == Message.EDIT) {
             var json = message.dataString();
             var listType = new TypeToken<ArrayList<AbstractDelta<String>>>() {
             }.getType();
@@ -149,7 +156,7 @@ public class DocumentController extends Controller<String> {
         client.send(new Message(Message.SET_USERNAME, newValue));
     }
 
-    private void manageAvatars(List<ClientEntity> clients) {
+    private void manageAllClients(List<ClientEntity> clients) {
         Platform.runLater(() -> {
             var children = clientsContainer.getChildren();
             children.removeIf(node -> node instanceof UserAvatar);
