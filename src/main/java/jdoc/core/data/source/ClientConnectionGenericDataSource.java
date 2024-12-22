@@ -70,9 +70,9 @@ public class ClientConnectionGenericDataSource<CHANGE extends Change<?, CHANGE>>
 
     private synchronized void updateReducedChange(CHANGE change) {
         if (reducedChange == null) {
-            reducedChange = change.reduce(List.of(change));
+            reducedChange = change;
         } else {
-            reducedChange = change.reduce(List.of(reducedChange, change));
+            reducedChange = reducedChange.reduce(change);
         }
     }
 

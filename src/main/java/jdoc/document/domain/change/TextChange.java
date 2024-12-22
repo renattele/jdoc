@@ -14,11 +14,9 @@ import jdoc.core.domain.change.Change;
 })
 public interface TextChange extends Change<TextBuilder, TextChange> {
     @Override
-    default TextChange reduce(Iterable<TextChange> changes) {
+    default TextChange reduce(TextChange change) {
         var textBuilder = new StringTextBuilder();
-        for (var reducible : changes) {
-            reducible.apply(textBuilder);
-        }
+        change.apply(textBuilder);
         return new InsertTextChange(0, textBuilder.toString());
     }
 }

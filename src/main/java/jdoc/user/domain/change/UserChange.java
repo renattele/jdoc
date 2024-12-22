@@ -16,11 +16,9 @@ import java.util.Map;
 })
 public interface UserChange extends Change<Map<String, User>, UserChange> {
     @Override
-    default UserChange reduce(Iterable<UserChange> changes) {
+    default UserChange reduce(UserChange change) {
         var users = new HashMap<String, User>();
-        for (UserChange change : changes) {
-            change.apply(users);
-        }
+        change.apply(users);
         return new ReplaceUsersChange(users);
     }
 }

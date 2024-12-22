@@ -26,7 +26,7 @@ public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> im
         if (reducedChange == null) {
             reducedChange = change;
         } else {
-            reducedChange = change.reduce(List.of(reducedChange, change));
+            reducedChange = reducedChange.reduce(change);
         }
         for (DataSource<CHANGE> source : sources) {
             if (source == thiz) continue;
