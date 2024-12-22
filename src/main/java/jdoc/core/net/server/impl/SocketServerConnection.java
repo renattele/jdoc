@@ -113,8 +113,7 @@ public class SocketServerConnection implements ServerConnection, Runnable {
                 while (socket.isConnected()) {
                     var incoming = Message.from(in);
                     if (incoming == null) continue;
-                    var modified = new Message(incoming.type(), incoming.data(), addr);
-                    broadcast(this, modified);
+                    broadcast(this, incoming);
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

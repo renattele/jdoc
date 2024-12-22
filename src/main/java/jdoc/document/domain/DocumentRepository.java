@@ -1,7 +1,7 @@
 package jdoc.document.domain;
 
-import jdoc.document.domain.source.text.Document;
-import jdoc.document.domain.source.text.TextSource;
+import jdoc.document.domain.source.Document;
+import jdoc.document.domain.source.TextSource;
 
 public interface DocumentRepository {
     Document getRemoteDocument(TextSource textSource, String url);

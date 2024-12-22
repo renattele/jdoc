@@ -1,13 +1,12 @@
 package jdoc.document.data;
 
 import jdoc.document.domain.*;
-import jdoc.document.domain.change.text.TextChange;
-import jdoc.document.domain.source.DataSourceOrchestrator;
-import jdoc.document.domain.source.RemoteDataSource;
-import jdoc.document.domain.source.text.Document;
-import jdoc.document.domain.source.text.LocalTextSource;
-import jdoc.document.domain.source.text.RemoteTextSource;
-import jdoc.document.domain.source.text.TextSource;
+import jdoc.document.domain.change.TextChange;
+import jdoc.core.domain.source.DataSourceOrchestrator;
+import jdoc.core.domain.source.RemoteDataSource;
+import jdoc.document.domain.source.Document;
+import jdoc.document.domain.source.LocalTextSource;
+import jdoc.document.domain.source.TextSource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
