@@ -77,3 +77,7 @@
     -fx-background-color: -fx-surface-variant;
     -fx-background-radius: 50;
 }
+
+.icon {
+    -fx-fill: -fx-primary;
+}

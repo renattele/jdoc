@@ -47,8 +47,8 @@ public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements Dat
     @Override
     public synchronized void apply(CHANGE change) {
         System.out.println("EXTERNAL CHANGE: " + change + ". APPLYING TO: " + origin + ". LAST CHANGE: " + lastChange);
-        origin.apply(change);
         lastChange = change;
+        origin.apply(change);
     }
 
     @Override

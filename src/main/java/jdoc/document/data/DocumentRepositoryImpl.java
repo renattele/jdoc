@@ -6,7 +6,6 @@ import jdoc.core.domain.source.DataSourceOrchestrator;
 import jdoc.core.domain.source.RemoteDataSource;
 import jdoc.document.domain.source.Document;
 import jdoc.document.domain.source.LocalTextSource;
-import jdoc.document.domain.source.TextSource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,10 +21,9 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     private final RemoteDataSource.Factory<TextChange> remoteTextSourceFactory;
 
     @Override
-    public Document getRemoteDocument(TextSource textSource, String url) {
+    public Document getRemoteDocument(String url) {
         try {
             return Document.wrap(orchestratorFactory.create(
-                    textSource,
                     remoteTextSourceFactory.create(url)
             ));
         } catch (IOException e) {
@@ -35,10 +33,9 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     }
 
     @Override
-    public Document getLocalDocument(TextSource textSource, String url) {
+    public Document getLocalDocument(String url) {
         try {
             return Document.wrap(orchestratorFactory.create(
-                    textSource,
                     localTextSourceFactory.create(new File(url)),
                     remoteTextSourceFactory.create("http://localhost")
             ));

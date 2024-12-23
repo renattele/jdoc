@@ -3,7 +3,7 @@ package jdoc.recent.domain;
 import java.util.List;
 
 public interface RecentDocumentsRepository {
-    void addRecent(String url);
+    void addRecent(RecentDocument document);
     void deleteRecent(String url);
-    List<String> getRecent();
+    List<RecentDocument> getRecent();
 }

@@ -5,18 +5,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jdoc.core.di.Injected;
-import jdoc.core.net.server.ServerConnection;
 import jdoc.core.presentation.Controller;
-import jdoc.core.net.server.HostManagerImpl;
 import jdoc.core.net.server.impl.SocketServerConnection;
-import jdoc.core.domain.Serializer;
+import jdoc.document.domain.source.LocalTextSource;
+import jdoc.recent.domain.RecentDocument;
 import jdoc.user.domain.UserRepository;
 import jdoc.document.domain.DocumentRepository;
 import jdoc.document.presentation.components.MarkdownTextArea;
 import jdoc.document.data.source.TextAreaSource;
 import jdoc.user.presentation.UserRow;
 
-public class DocumentController extends Controller<String> {
+import java.io.File;
+import java.io.IOException;
+
+public class DocumentController extends Controller<RecentDocument> {
     @FXML
     private VBox container;
 
@@ -33,15 +35,22 @@ public class DocumentController extends Controller<String> {
     private UserRepository userRepository;
 
     @Injected
-    private Serializer serializer;
+    private LocalTextSource.Factory localTextSourceFactory;
 
     @Override
     public void init() {
         VBox.setVgrow(container, Priority.ALWAYS);
-        ServerConnection serverConnection = new SocketServerConnection(8080);
-        new HostManagerImpl(serverConnection, serializer);
-        documentRepository.getRemoteDocument(new TextAreaSource(textArea), argument);
-        var userList = userRepository.getUsersByUrl(argument);
+        new SocketServerConnection(8080);
+        var areaTextSource = new TextAreaSource(textArea);
+        var recentDocument = argument;
+        var document = documentRepository.getRemoteDocument(recentDocument.remoteUrl());
+        document.addSource(areaTextSource);
+        try {
+            document.addSource(localTextSourceFactory.create(new File(recentDocument.localUrl())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        var userList = userRepository.getUsersByUrl(recentDocument.remoteUrl());
         clientsContainer.getChildren().add(new UserRow(userList));
     }
 }

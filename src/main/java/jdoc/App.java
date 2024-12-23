@@ -1,9 +1,12 @@
 package jdoc;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jdoc.core.data.JacksonSerializer;
 import jdoc.core.net.client.impl.MapClientConnectionDataSource;
@@ -20,16 +23,27 @@ import jdoc.document.domain.change.TextChange;
 import jdoc.user.domain.change.UserChange;
 import jdoc.recent.data.RecentDocumentsRepositoryImpl;
 import jdoc.core.di.Module;
+import lombok.extern.slf4j.Slf4j;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
+@Slf4j
 public class App extends Application {
 	public static Stage stage;
 	private static App app;
 	private static Module module;
 
+	@FXML
+	public void exitApplication(ActionEvent event) {
+		Platform.exit();
+	}
+
 	@Override
 	public void start(Stage stage) {
+		log.debug("HELLO");
 		initModule();
 		App.stage = stage;
 		stage.setOnCloseRequest(event -> stage.close());
@@ -62,6 +76,7 @@ public class App extends Application {
 		module = new ReadOnlyModule(
 				serializer,
 				settings,
+				localTextSourceFactory,
 				recentDocumentsRepository,
 				documentRepository,
 				userRepository
@@ -70,6 +85,18 @@ public class App extends Application {
 
 	public static void browse(String url) {
 		app.getHostServices().showDocument(url);
+	}
+
+	public static Optional<File> saveFile(String description, String... supportedFiles) {
+		var chooser = new FileChooser();
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, supportedFiles));
+		return Optional.ofNullable(new FileChooser().showSaveDialog(stage));
+	}
+
+	public static Optional<File> openFile(String description, String... supportedFiles) {
+		var chooser = new FileChooser();
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, supportedFiles));
+		return Optional.ofNullable(chooser.showOpenDialog(stage));
 	}
 
 	public static void navigate(String file, Object argument) {

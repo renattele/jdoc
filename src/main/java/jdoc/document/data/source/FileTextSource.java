@@ -2,11 +2,11 @@ package jdoc.document.data.source;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.processors.ReplayProcessor;
 import jdoc.core.util.DisposableList;
 import jdoc.document.data.StringTextBuilder;
-import jdoc.document.domain.change.TextChange;
-import jdoc.document.domain.change.ClearTextChange;
 import jdoc.document.domain.change.InsertTextChange;
+import jdoc.document.domain.change.TextChange;
 import jdoc.document.domain.source.LocalTextSource;
 
 import java.io.*;
@@ -15,27 +15,35 @@ import java.util.concurrent.TimeUnit;
 
 public class FileTextSource implements LocalTextSource {
     private final DisposableList disposables = new DisposableList();
-    private final PublishProcessor<TextChange> changes = PublishProcessor.create();
+    private final ReplayProcessor<TextChange> changes = ReplayProcessor.create();
     private final StringBuilder text = new StringBuilder();
 
-    public FileTextSource(File file) {
-        disposables.add(changes.debounce(2000, TimeUnit.MILLISECONDS).subscribe(i -> {
-            try (var writer = new BufferedWriter(new FileWriter(file))) {
-                writer.append(text.toString());
-                writer.flush();
+    public FileTextSource(File file, boolean emitChangesFromFile) {
+        try {
+            disposables.add(changes.debounce(2000, TimeUnit.MILLISECONDS).subscribe(i -> {
+                try (var writer = new BufferedWriter(new FileWriter(file))) {
+                    writer.append(text.toString());
+                    writer.flush();
+                }
+            }));
+            if (emitChangesFromFile) {
+                var text = Files.readString(file.toPath());
+                System.out.println(text);
+                changes.onNext(new InsertTextChange(0, text));
             }
-        }));
-        disposables.add(Flowable.interval(0, 5000, TimeUnit.MILLISECONDS).subscribe(l -> {
-            var textFromFile = Files.readString(file.toPath());
-            changes.onNext(new ClearTextChange());
-            changes.onNext(new InsertTextChange(0, textFromFile));
-        }));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public FileTextSource(File file) {
+        this(file, true);
     }
 
     @Override
     public void apply(TextChange textChange) {
-        changes.onNext(textChange);
         textChange.apply(new StringTextBuilder(text));
+        changes.onNext(textChange);
     }
 
     @Override

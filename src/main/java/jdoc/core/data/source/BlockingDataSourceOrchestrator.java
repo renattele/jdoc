@@ -39,8 +39,9 @@ public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> im
     public synchronized void addSource(DataSource<CHANGE> source) {
         var blockingSource = new BlockingDataSource<>(source);
         disposables.add(blockingSource.changes().subscribe(change -> {
+            System.out.println("BROADCASTING CHANGE: " + change + " FROM SOURCE: " + source);
             synchronized (lock) {
-                System.out.println("BROADCASTING CHANGE: " + change + " FROM SOURCE: " + source);
+                System.out.println("[LOCK] BROADCASTING CHANGE: " + change + " FROM SOURCE: " + source);
                 apply(blockingSource, change);
             }
         }));

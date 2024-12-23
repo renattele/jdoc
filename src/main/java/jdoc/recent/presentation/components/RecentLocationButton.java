@@ -11,15 +11,19 @@ import javafx.scene.layout.HBox;
 public class RecentLocationButton extends HBox {
     private final ImageView closeButtonImage;
 
-    public RecentLocationButton(String text) {
-        closeButtonImage = new ImageView("close.png");
+    public RecentLocationButton(String text, String leaderImageUrl) {
+        closeButtonImage = new ImageView("icons/ic_close.png");
+        var leaderImage = new ImageView(leaderImageUrl);
         var label = new Label(text);
         closeButtonImage.setFitWidth(24);
         closeButtonImage.setFitHeight(24);
+        leaderImage.setFitWidth(24);
+        leaderImage.setFitHeight(24);
         getStyleClass().add("recent-location-button");
         setAlignment(Pos.CENTER);
-        getChildren().add(label);
         setSpacing(4);
+        getChildren().add(leaderImage);
+        getChildren().add(label);
         setCursor(Cursor.HAND);
         getChildren().add(closeButtonImage);
     }

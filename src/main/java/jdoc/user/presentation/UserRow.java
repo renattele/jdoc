@@ -13,6 +13,7 @@ import jdoc.user.domain.change.PutUserChange;
 import jdoc.user.domain.change.UserChange;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class UserRow extends HBox implements DataSource<UserChange> {
     private final Map<String, User> users = new HashMap<>();
@@ -24,6 +25,10 @@ public class UserRow extends HBox implements DataSource<UserChange> {
 
     public UserRow(UserList userList) {
         userList.addSource(this);
+        Flowable.interval(10, TimeUnit.SECONDS).subscribe(i -> {
+            currentUser = new User(currentUser.name(), currentUser.id());
+            apply(new PutUserChange(currentUser));
+        });
         var fieldWithAvatar = new UserAvatarWithTextField(currentUser.name());
         apply(new PutUserChange(currentUser));
         fieldWithAvatar.setName(currentUser.name());

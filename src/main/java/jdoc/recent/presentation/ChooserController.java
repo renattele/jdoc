@@ -7,12 +7,13 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import jdoc.core.di.Injected;
 import jdoc.core.presentation.Controller;
+import jdoc.recent.domain.RecentDocument;
 import jdoc.recent.domain.RecentDocumentsRepository;
 import jdoc.App;
 import jdoc.recent.presentation.components.RecentLocationButton;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.util.Optional;
 
 public class ChooserController extends Controller<Object> {
     @FXML
@@ -32,7 +33,13 @@ public class ChooserController extends Controller<Object> {
         updateRecentUrls();
         connectField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                recentDocumentsRepository.addRecent(connectField.getText());
+                var document = new RecentDocument(
+                        RecentDocument.Type.Remote,
+                        connectField.getText(),
+                        null,
+                        connectField.getText()
+                );
+                recentDocumentsRepository.addRecent(document);
                 updateRecentUrls();
             }
         });
@@ -42,23 +49,49 @@ public class ChooserController extends Controller<Object> {
         var recent = new java.util.ArrayList<>(recentDocumentsRepository
                 .getRecent()
                 .stream()
-                .collect(Collectors.toMap(i -> i, i -> i))
-                .entrySet()
-                .stream()
                 .toList());
-        recent.add(0, Map.entry("http://localhost", "Host"));
+        var newDocument = new RecentDocument(
+                RecentDocument.Type.New,
+                "localhost",
+                null,
+                "New"
+        );
+        recent.add(0, newDocument);
         var children = recentContainer.getChildren();
         children.clear();
-        for (Map.Entry<String, String> entry : recent) {
-            var url = entry.getKey();
-            var name = entry.getValue();
-            var button = new RecentLocationButton(name);
-            button.setOnClick(event -> App.navigate("/document-view.fxml", url));
-            button.setOnDelete(event -> {
-                recentDocumentsRepository.deleteRecent(url);
-                updateRecentUrls();
-            });
+        for (var document : recent) {
+            var button = getRecentLocationButton(document);
             children.add(button);
         }
+    }
+
+    private RecentLocationButton getRecentLocationButton(RecentDocument document) {
+        String leaderIcon;
+        switch (document.type()) {
+            case Local -> leaderIcon = "icons/ic_home.png";
+            case Remote -> leaderIcon = "icons/ic_cloud.png";
+            default -> leaderIcon = "icons/ic_add.png";
+        }
+        var button = new RecentLocationButton(document.displayName(), leaderIcon);
+        button.setOnClick(event -> {
+            onRecentDocumentClick(document);
+        });
+        button.setOnDelete(event -> {
+            recentDocumentsRepository.deleteRecent(document.remoteUrl());
+            updateRecentUrls();
+        });
+        return button;
+    }
+
+    private void onRecentDocumentClick(RecentDocument document) {
+        var description = "Markdown file";
+        var supportedType = "md";
+        Optional<File> localFile = App.saveFile(description, supportedType);
+        if (localFile.isEmpty()) return;
+        var modifiedDocument = document
+                .toBuilder()
+                .localUrl(localFile.get().getAbsolutePath())
+                .build();
+        App.navigate("/document-view.fxml", modifiedDocument);
     }
 }
