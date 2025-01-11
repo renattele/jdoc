@@ -6,7 +6,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jdoc.core.di.Injected;
 import jdoc.core.presentation.Controller;
-import jdoc.core.net.server.impl.SocketServerConnection;
 import jdoc.document.domain.source.LocalTextSource;
 import jdoc.recent.domain.RecentDocument;
 import jdoc.user.domain.UserRepository;
@@ -40,13 +39,13 @@ public class DocumentController extends Controller<RecentDocument> {
     @Override
     public void init() {
         VBox.setVgrow(container, Priority.ALWAYS);
-        new SocketServerConnection(8080);
         var areaTextSource = new TextAreaSource(textArea);
         var recentDocument = argument;
         var document = documentRepository.getRemoteDocument(recentDocument.remoteUrl());
         document.addSource(areaTextSource);
         try {
-            document.addSource(localTextSourceFactory.create(new File(recentDocument.localUrl())));
+            var emitFromFile = recentDocument.type() == RecentDocument.Type.Local;
+            document.addSource(localTextSourceFactory.create(new File(recentDocument.localUrl()), emitFromFile));
         } catch (IOException e) {
             e.printStackTrace();
         }

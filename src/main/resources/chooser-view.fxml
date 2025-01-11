@@ -12,6 +12,7 @@
     </padding>
     <Text style="-fx-font-size: 60">jdoc</Text>
     <TextField fx:id="connectField" promptText="Host URL" focusTraversable="false"/>
+    <Text fx:id="errorMessageText"/>
     <FlowPane fx:id="recentContainer" hgap="12" vgap="12" alignment="CENTER">
 
     </FlowPane>

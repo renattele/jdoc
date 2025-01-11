@@ -12,9 +12,12 @@ public class RecentLocationButton extends HBox {
     private final ImageView closeButtonImage;
 
     public RecentLocationButton(String text, String leaderImageUrl) {
-        closeButtonImage = new ImageView("icons/ic_close.png");
+        this(text, leaderImageUrl, true);
+    }
+    public RecentLocationButton(String text, String leaderImageUrl, boolean showDeleteButton) {
         var leaderImage = new ImageView(leaderImageUrl);
         var label = new Label(text);
+        closeButtonImage = new ImageView("icons/ic_close.png");
         closeButtonImage.setFitWidth(24);
         closeButtonImage.setFitHeight(24);
         leaderImage.setFitWidth(24);
@@ -25,7 +28,9 @@ public class RecentLocationButton extends HBox {
         getChildren().add(leaderImage);
         getChildren().add(label);
         setCursor(Cursor.HAND);
-        getChildren().add(closeButtonImage);
+        if (showDeleteButton) {
+            getChildren().add(closeButtonImage);
+        }
     }
     public void setOnDelete(EventHandler<? super MouseEvent> handler) {
         closeButtonImage.setOnMouseClicked(handler);

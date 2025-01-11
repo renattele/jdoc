@@ -16,6 +16,7 @@ public interface TextChange extends Change<TextBuilder, TextChange> {
     @Override
     default TextChange reduce(TextChange change) {
         var textBuilder = new StringTextBuilder();
+        apply(textBuilder);
         change.apply(textBuilder);
         return new InsertTextChange(0, textBuilder.toString());
     }

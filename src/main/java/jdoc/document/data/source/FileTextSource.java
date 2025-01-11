@@ -20,6 +20,9 @@ public class FileTextSource implements LocalTextSource {
 
     public FileTextSource(File file, boolean emitChangesFromFile) {
         try {
+            if (!file.exists()) {
+                Files.createFile(file.toPath());
+            }
             disposables.add(changes.debounce(2000, TimeUnit.MILLISECONDS).subscribe(i -> {
                 try (var writer = new BufferedWriter(new FileWriter(file))) {
                     writer.append(text.toString());
@@ -59,8 +62,8 @@ public class FileTextSource implements LocalTextSource {
     public static class Factory implements LocalTextSource.Factory {
 
         @Override
-        public LocalTextSource create(File file) {
-            return new FileTextSource(file);
+        public LocalTextSource create(File file, boolean emitChangesFromFile) {
+            return new FileTextSource(file, emitChangesFromFile);
         }
     }
 }

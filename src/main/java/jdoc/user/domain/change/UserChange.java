@@ -18,6 +18,7 @@ public interface UserChange extends Change<Map<String, User>, UserChange> {
     @Override
     default UserChange reduce(UserChange change) {
         var users = new HashMap<String, User>();
+        apply(users);
         change.apply(users);
         return new ReplaceUsersChange(users);
     }

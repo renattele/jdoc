@@ -11,11 +11,13 @@ import javafx.stage.Stage;
 import jdoc.core.data.JacksonSerializer;
 import jdoc.core.net.client.impl.MapClientConnectionDataSource;
 import jdoc.core.net.protocol.MessageType;
+import jdoc.core.net.server.impl.MapServerConnectionDataSource;
 import jdoc.core.presentation.Controller;
 import jdoc.core.data.LocalSettings;
 import jdoc.core.data.ReadOnlyModule;
 import jdoc.core.data.source.BlockingDataSourceOrchestrator;
 import jdoc.core.data.source.ClientConnectionGenericDataSource;
+import jdoc.core.presentation.FileChooserOptions;
 import jdoc.document.data.DocumentRepositoryImpl;
 import jdoc.document.data.source.FileTextSource;
 import jdoc.user.data.UserRepositoryImpl;
@@ -23,14 +25,12 @@ import jdoc.document.domain.change.TextChange;
 import jdoc.user.domain.change.UserChange;
 import jdoc.recent.data.RecentDocumentsRepositoryImpl;
 import jdoc.core.di.Module;
-import lombok.extern.slf4j.Slf4j;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-@Slf4j
 public class App extends Application {
 	public static Stage stage;
 	private static App app;
@@ -43,7 +43,6 @@ public class App extends Application {
 
 	@Override
 	public void start(Stage stage) {
-		log.debug("HELLO");
 		initModule();
 		App.stage = stage;
 		stage.setOnCloseRequest(event -> stage.close());
@@ -57,6 +56,7 @@ public class App extends Application {
 		var settings = new LocalSettings(serializer);
 		var recentDocumentsRepository = new RecentDocumentsRepositoryImpl(settings);
 		var clientConnectionDataSource = new MapClientConnectionDataSource();
+		var serverConnectionDataSource = new MapServerConnectionDataSource();
 		var orchestratorFactory = new BlockingDataSourceOrchestrator.Factory();
 		var localTextSourceFactory = new FileTextSource.Factory();
 		var remoteTextSourceFactory = new ClientConnectionGenericDataSource.Factory<>(serializer,
@@ -72,31 +72,42 @@ public class App extends Application {
 				MessageType.USERS_SYNC_RESPONSE,
 				UserChange.class);
 		var userRepository = new UserRepositoryImpl(orchestratorFactory, remoteUserSourceFactory);
-		var documentRepository = new DocumentRepositoryImpl(orchestratorFactory, localTextSourceFactory, remoteTextSourceFactory);
+		var documentRepository = new DocumentRepositoryImpl(orchestratorFactory, remoteTextSourceFactory);
 		module = new ReadOnlyModule(
 				serializer,
 				settings,
 				localTextSourceFactory,
 				recentDocumentsRepository,
 				documentRepository,
-				userRepository
+				userRepository,
+				clientConnectionDataSource
 		);
-	}
+        try {
+            serverConnectionDataSource.get();
+        } catch (IOException e) {
+			e.printStackTrace();
+        }
+    }
 
 	public static void browse(String url) {
 		app.getHostServices().showDocument(url);
 	}
 
-	public static Optional<File> saveFile(String description, String... supportedFiles) {
-		var chooser = new FileChooser();
-		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, supportedFiles));
-		return Optional.ofNullable(new FileChooser().showSaveDialog(stage));
+	public static Optional<File> saveFile(FileChooserOptions options) {
+		var chooser = fileChooserFrom(options);
+		return Optional.ofNullable(chooser.showSaveDialog(stage));
 	}
 
-	public static Optional<File> openFile(String description, String... supportedFiles) {
-		var chooser = new FileChooser();
-		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, supportedFiles));
+	public static Optional<File> openFile(FileChooserOptions options) {
+		var chooser = fileChooserFrom(options);
 		return Optional.ofNullable(chooser.showOpenDialog(stage));
+	}
+
+	private static FileChooser fileChooserFrom(FileChooserOptions options) {
+		var chooser = new FileChooser();
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(options.getDescription(), options.getExtension()));
+		chooser.setTitle(options.getTitle());
+		return chooser;
 	}
 
 	public static void navigate(String file, Object argument) {

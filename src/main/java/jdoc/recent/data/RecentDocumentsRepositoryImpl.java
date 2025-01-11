@@ -19,7 +19,7 @@ public class RecentDocumentsRepositoryImpl implements RecentDocumentsRepository 
     @Override
     public void addRecent(RecentDocument recentDocument) {
         var recent = new ArrayList<>(getRecent());
-        recent.removeIf(document -> document.remoteUrl().equals(recentDocument.remoteUrl()));
+        recent.removeIf(document -> document.equals(recentDocument));
         recent.add(recentDocument);
         settings.put(RECENT_KEY, recent);
     }

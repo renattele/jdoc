@@ -5,8 +5,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import jdoc.core.di.Injected;
+import jdoc.core.net.client.ClientConnectionDataSource;
 import jdoc.core.presentation.Controller;
+import jdoc.core.presentation.FileChooserOptions;
 import jdoc.recent.domain.RecentDocument;
 import jdoc.recent.domain.RecentDocumentsRepository;
 import jdoc.App;
@@ -23,16 +26,29 @@ public class ChooserController extends Controller<Object> {
     private TextField connectField;
 
     @FXML
+    private Text errorMessageText;
+
+    @FXML
     private FlowPane recentContainer;
 
     @Injected
     private RecentDocumentsRepository recentDocumentsRepository;
+
+    @Injected
+    private ClientConnectionDataSource clientConnectionDataSource;
 
     @Override
     public void init() {
         updateRecentUrls();
         connectField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
+                var url = connectField.getText();
+                try (var ignored = clientConnectionDataSource.get(url)) {
+                } catch (Exception e) {
+                    errorMessageText.setText("Unable to connect to " + url);
+                    errorMessageText.setVisible(true);
+                    return;
+                }
                 var document = new RecentDocument(
                         RecentDocument.Type.Remote,
                         connectField.getText(),
@@ -41,6 +57,9 @@ public class ChooserController extends Controller<Object> {
                 );
                 recentDocumentsRepository.addRecent(document);
                 updateRecentUrls();
+            } else {
+                errorMessageText.setText("");
+                errorMessageText.setVisible(false);
             }
         });
     }
@@ -50,19 +69,48 @@ public class ChooserController extends Controller<Object> {
                 .getRecent()
                 .stream()
                 .toList());
-        var newDocument = new RecentDocument(
-                RecentDocument.Type.New,
-                "localhost",
-                null,
-                "New"
-        );
-        recent.add(0, newDocument);
         var children = recentContainer.getChildren();
         children.clear();
+        var newDocumentButton = new RecentLocationButton("New", "icons/ic_add.png", false);
+        newDocumentButton.setOnClick(event -> {
+            createDocument();
+        });
+        var openDocumentButton = new RecentLocationButton("Open", "icons/ic_folder_open.png", false);
+        openDocumentButton.setOnClick(event -> {
+            openDocument();
+        });
+        children.add(0, openDocumentButton);
+        children.add(0, newDocumentButton);
         for (var document : recent) {
             var button = getRecentLocationButton(document);
             children.add(button);
         }
+    }
+
+    private void createDocument() {
+        var localFile = App.saveFile(markdownFileOptions());
+        if (localFile.isEmpty()) return;
+        var document = new RecentDocument(
+                RecentDocument.Type.Local,
+                "localhost",
+                localFile.get().getAbsolutePath(),
+                localFile.get().getName()
+        );
+        recentDocumentsRepository.addRecent(document);
+        updateRecentUrls();
+    }
+
+    private void openDocument() {
+        var localFile = App.openFile(markdownFileOptions());
+        if (localFile.isEmpty()) return;
+        var document = new RecentDocument(
+                RecentDocument.Type.Local,
+                "localhost",
+                localFile.get().getAbsolutePath(),
+                localFile.get().getName()
+        );
+        recentDocumentsRepository.addRecent(document);
+        updateRecentUrls();
     }
 
     private RecentLocationButton getRecentLocationButton(RecentDocument document) {
@@ -84,14 +132,24 @@ public class ChooserController extends Controller<Object> {
     }
 
     private void onRecentDocumentClick(RecentDocument document) {
-        var description = "Markdown file";
-        var supportedType = "md";
-        Optional<File> localFile = App.saveFile(description, supportedType);
+        Optional<File> localFile;
+        if (document.type() == RecentDocument.Type.Remote) {
+            localFile = App.saveFile(markdownFileOptions());
+        } else {
+            localFile = Optional.of(new File(document.localUrl()));
+        }
         if (localFile.isEmpty()) return;
         var modifiedDocument = document
                 .toBuilder()
                 .localUrl(localFile.get().getAbsolutePath())
                 .build();
         App.navigate("/document-view.fxml", modifiedDocument);
+    }
+
+    private FileChooserOptions markdownFileOptions() {
+        return FileChooserOptions.builder()
+                .description("Markdown file")
+                .extension("*.md")
+                .build();
     }
 }

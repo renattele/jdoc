@@ -9,7 +9,6 @@ import jdoc.document.domain.source.LocalTextSource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
 
 @SuppressWarnings("unchecked")
@@ -17,7 +16,6 @@ import java.io.IOException;
 @Slf4j
 public class DocumentRepositoryImpl implements DocumentRepository {
     private final DataSourceOrchestrator.Factory orchestratorFactory;
-    private final LocalTextSource.Factory localTextSourceFactory;
     private final RemoteDataSource.Factory<TextChange> remoteTextSourceFactory;
 
     @Override
@@ -32,16 +30,4 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
     }
 
-    @Override
-    public Document getLocalDocument(String url) {
-        try {
-            return Document.wrap(orchestratorFactory.create(
-                    localTextSourceFactory.create(new File(url)),
-                    remoteTextSourceFactory.create("http://localhost")
-            ));
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-    }
 }

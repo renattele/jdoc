@@ -6,7 +6,6 @@ import lombok.Builder;
 public record RecentDocument(Type type, String remoteUrl, String localUrl, String displayName) {
     public enum Type {
         Local,
-        Remote,
-        New
+        Remote
     }
 }
