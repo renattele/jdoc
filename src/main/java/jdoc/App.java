@@ -25,12 +25,14 @@ import jdoc.document.domain.change.TextChange;
 import jdoc.user.domain.change.UserChange;
 import jdoc.recent.data.RecentDocumentsRepositoryImpl;
 import jdoc.core.di.Module;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+@Slf4j
 public class App extends Application {
 	public static Stage stage;
 	private static App app;
@@ -85,7 +87,7 @@ public class App extends Application {
         try {
             serverConnectionDataSource.get();
         } catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.toString());
         }
     }
 
@@ -121,7 +123,7 @@ public class App extends Application {
 			scene.getStylesheets().add("base.css");
 			stage.setScene(new Scene(scene));
         } catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.toString(), e);
         }
 	}
 	public static void navigate(String file) {

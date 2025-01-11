@@ -8,11 +8,13 @@ import jdoc.document.data.StringTextBuilder;
 import jdoc.document.domain.change.InsertTextChange;
 import jdoc.document.domain.change.TextChange;
 import jdoc.document.domain.source.LocalTextSource;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class FileTextSource implements LocalTextSource {
     private final DisposableList disposables = new DisposableList();
     private final ReplayProcessor<TextChange> changes = ReplayProcessor.create();
@@ -31,11 +33,11 @@ public class FileTextSource implements LocalTextSource {
             }));
             if (emitChangesFromFile) {
                 var text = Files.readString(file.toPath());
-                System.out.println(text);
+                log.info(text);
                 changes.onNext(new InsertTextChange(0, text));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.toString(), e);
         }
     }
 

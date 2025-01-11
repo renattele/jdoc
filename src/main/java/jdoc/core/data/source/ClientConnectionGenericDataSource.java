@@ -10,11 +10,12 @@ import jdoc.core.domain.source.RemoteDataSource;
 import jdoc.core.net.protocol.MessageType;
 import jdoc.core.net.protocol.RequestToken;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class ClientConnectionGenericDataSource<CHANGE extends Change<?, CHANGE>> implements RemoteDataSource<CHANGE> {
     private final ClientConnection connection;
     private final Serializer serializer;
@@ -39,15 +40,15 @@ public class ClientConnectionGenericDataSource<CHANGE extends Change<?, CHANGE>>
             send(syncRequestType, requestToken);
         }).start();
         this.changesCached = connection.incoming().mapOptional(message -> {
-            System.out.println("INCOMING: " + message);
+            log.info("INCOMING: {}", message);
             if (message.type() == messageType) {
                 return Optional.of(serializer.fromString(message.dataString(), clazz));
             } else {
                 if (message.type() == syncRequestType) {
-                    System.out.println("SYNC REQUEST: " + message + ". CHANGE: " + reducedChange);
+                    log.info("SYNC REQUEST: {}. CHANGE: {}", message, reducedChange);
                     send(syncResponseType, message.requestToken(), reducedChange);
                 } else if (message.type() == syncResponseType) {
-                    System.out.println("SYNC RESPONSE: " + message);
+                    log.info("SYNC RESPONSE: {}", message);
                     if (message.requestToken().equals(requestToken)) {
                         requestToken = RequestToken.EMPTY;
                         if (message.dataString().isEmpty()) return Optional.empty();

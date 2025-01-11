@@ -3,9 +3,11 @@ package jdoc.core.data.source;
 import io.reactivex.rxjava3.core.Flowable;
 import jdoc.core.domain.change.Change;
 import jdoc.core.domain.source.DataSource;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
+@Slf4j
 public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements DataSource<CHANGE> {
     private final DataSource<CHANGE> origin;
     private final Flowable<CHANGE> changes;
@@ -15,7 +17,7 @@ public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements Dat
         this.origin = origin;
         this.changes = origin.changes().mapOptional(change -> {
             synchronized (origin) {
-                System.out.println("INTERNAL CHANGE: " + change + ". SOURCE: " + origin + ". LAST CHANGE: " + lastChange);
+                log.info("INTERNAL CHANGE: {}. SOURCE: {}. LAST CHANGE: {}", change, origin, lastChange);
                 if (change.equals(lastChange) && origin.populatesChanges()) {
                     lastChange = null;
                     return Optional.empty();
@@ -23,7 +25,7 @@ public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements Dat
                 return Optional.of(change);
             }
         }).map(change -> {
-            System.out.println("ACTUAL CHANGE: " + change + ". SOURCE: " + origin + ". LAST CHANGE: " + lastChange);
+            log.info("ACTUAL CHANGE: {}. SOURCE: {}. LAST CHANGE: {}", change, origin, lastChange);
             return change;
         }).cache();
     }
@@ -46,7 +48,7 @@ public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements Dat
 
     @Override
     public synchronized void apply(CHANGE change) {
-        System.out.println("EXTERNAL CHANGE: " + change + ". APPLYING TO: " + origin + ". LAST CHANGE: " + lastChange);
+        log.info("EXTERNAL CHANGE: {}. APPLYING TO: {}. LAST CHANGE: {}", change, origin, lastChange);
         lastChange = change;
         origin.apply(change);
     }

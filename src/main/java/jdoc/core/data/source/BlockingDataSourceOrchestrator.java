@@ -30,7 +30,7 @@ public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> im
         }
         for (DataSource<CHANGE> source : sources) {
             if (source == thiz) continue;
-            System.out.println("APPLYING FOR: " + source);
+            log.info("APPLYING FOR: {}", source);
             source.apply(change);
         }
     }
@@ -39,9 +39,9 @@ public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> im
     public synchronized void addSource(DataSource<CHANGE> source) {
         var blockingSource = new BlockingDataSource<>(source);
         disposables.add(blockingSource.changes().subscribe(change -> {
-            System.out.println("BROADCASTING CHANGE: " + change + " FROM SOURCE: " + source);
+            log.info("BROADCASTING CHANGE: {} FROM SOURCE: {}", change, source);
             synchronized (lock) {
-                System.out.println("[LOCK] BROADCASTING CHANGE: " + change + " FROM SOURCE: " + source);
+                log.info("[LOCK] BROADCASTING CHANGE: {} FROM SOURCE: {}", change, source);
                 apply(blockingSource, change);
             }
         }));

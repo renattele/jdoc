@@ -55,7 +55,7 @@ public class SocketClientConnection implements ClientConnection, Runnable {
             try {
                 var message = Message.from(in);
                 if (message == null) continue;
-                System.out.println("GOT NEW MESSAGE: " + message);
+                log.info("GOT NEW MESSAGE: {}", message);
                 messages.onNext(message);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);

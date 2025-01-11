@@ -3,12 +3,14 @@ package jdoc.document.presentation.components;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Region;
 import jdoc.App;
+import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class MarkdownTextArea extends StyleClassedTextArea {
     public static CssTextMatch ITALIC = new CssTextMatch("\\*(.*?)\\*", "italic");
     public static CssTextMatch BOLD = new CssTextMatch("\\*\\*(.*?)\\*\\*", "bold");
@@ -75,7 +77,7 @@ public class MarkdownTextArea extends StyleClassedTextArea {
                         App.browse(link);
                         deselect();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        log.error(e.toString(), e);
                     }
                 }
             }
@@ -123,7 +125,7 @@ public class MarkdownTextArea extends StyleClassedTextArea {
         while (matcher.find()) {
             int start = matcher.start();
             int end = matcher.end();
-            System.out.println("START: " + start + " END: " + end + " CSS: " + css);
+            log.info("START: {} END: {} CSS: {}", start, end, css);
             style(start, end, css);
         }
     }

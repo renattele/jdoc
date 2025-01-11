@@ -35,9 +35,9 @@ public class TextAreaSource implements TextSource {
     public void apply(TextChange textChange) {
         mutate(() -> {
             var builder = new TextAreaTextBuilder(textArea);
-            System.out.println("BEFORE: " + builder);
+            log.info("BEFORE: {}", builder);
             textChange.apply(builder);
-            System.out.println("AFTER: " + builder);
+            log.info("AFTER: {}", builder);
         });
     }
 

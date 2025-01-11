@@ -13,10 +13,12 @@ import jdoc.document.domain.DocumentRepository;
 import jdoc.document.presentation.components.MarkdownTextArea;
 import jdoc.document.data.source.TextAreaSource;
 import jdoc.user.presentation.UserRow;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 
+@Slf4j
 public class DocumentController extends Controller<RecentDocument> {
     @FXML
     private VBox container;
@@ -47,7 +49,7 @@ public class DocumentController extends Controller<RecentDocument> {
             var emitFromFile = recentDocument.type() == RecentDocument.Type.Local;
             document.addSource(localTextSourceFactory.create(new File(recentDocument.localUrl()), emitFromFile));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.toString(), e);
         }
         var userList = userRepository.getUsersByUrl(recentDocument.remoteUrl());
         clientsContainer.getChildren().add(new UserRow(userList));

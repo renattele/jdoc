@@ -3,7 +3,9 @@ package jdoc.core.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jdoc.core.domain.Serializer;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JacksonSerializer implements Serializer {
     private final ObjectMapper mapper;
 
@@ -16,7 +18,7 @@ public class JacksonSerializer implements Serializer {
         try {
             return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error(e.toString(), e);
             return null;
         }
     }
@@ -26,7 +28,7 @@ public class JacksonSerializer implements Serializer {
         try {
             return mapper.readValue(str, clazz);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error(e.toString(), e);
             return null;
         }
     }

@@ -2,7 +2,9 @@ package jdoc.core.presentation;
 
 import jdoc.core.di.Injected;
 import jdoc.core.di.Module;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class Controller<T> {
     protected T argument;
     private Module module;
@@ -18,7 +20,7 @@ public abstract class Controller<T> {
                 try {
                     field.set(this, inject(field.getType()));
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    log.error(e.toString(), e);
                 }
             }
         }
