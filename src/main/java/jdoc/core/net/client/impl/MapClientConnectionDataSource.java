@@ -18,6 +18,9 @@ public class MapClientConnectionDataSource implements ClientConnectionDataSource
 
     @Override
     public synchronized ClientConnection get(String url) throws IOException {
+        if (connections.containsKey(url) && !connections.get(url).isConnected()) {
+            connections.remove(url);
+        }
         if (!connections.containsKey(url)) {
             var uri = URI.create(url);
             var port = uri.getPort() < 0 ? ProtocolConstants.PORT : uri.getPort();

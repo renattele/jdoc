@@ -49,6 +49,7 @@ public class App extends Application {
 		initModule();
 		App.stage = stage;
 		stage.getIcons().add(new Image("icons/logo_small.png"));
+		stage.setTitle("Jdoc");
 		app = this;
 		navigate("/chooser-view.fxml");
 		stage.show();

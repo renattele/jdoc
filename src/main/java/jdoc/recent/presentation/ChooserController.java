@@ -60,12 +60,12 @@ public class ChooserController extends Controller<Object> {
     }
 
     private boolean isConnectionAvailable(String url) {
-        /*try (var ignored = clientConnectionDataSource.get(url)) {
+        try (var ignored = clientConnectionDataSource.get(url)) {
         } catch (Exception e) {
             errorMessageText.setText("Unable to connect to " + url);
             errorMessageText.setVisible(true);
             return false;
-        }*/
+        }
         return true;
     }
 
