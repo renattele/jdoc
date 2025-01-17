@@ -10,13 +10,14 @@ import javafx.scene.layout.HBox;
 
 public class RecentLocationButton extends HBox {
     private final ImageView closeButtonImage;
+    private final Label label;
 
     public RecentLocationButton(String text, String leaderImageUrl) {
         this(text, leaderImageUrl, true);
     }
     public RecentLocationButton(String text, String leaderImageUrl, boolean showDeleteButton) {
         var leaderImage = new ImageView(leaderImageUrl);
-        var label = new Label(text);
+        label = new Label(text);
         closeButtonImage = new ImageView("icons/ic_close.png");
         closeButtonImage.setFitWidth(24);
         closeButtonImage.setFitHeight(24);
@@ -36,6 +37,6 @@ public class RecentLocationButton extends HBox {
         closeButtonImage.setOnMouseClicked(handler);
     }
     public void setOnClick(EventHandler<? super MouseEvent> handler) {
-        setOnMouseClicked(handler);
+        label.setOnMouseClicked(handler);
     }
 }
