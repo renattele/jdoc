@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jdoc.core.data.JacksonSerializer;
@@ -47,6 +48,7 @@ public class App extends Application {
 	public void start(Stage stage) {
 		initModule();
 		App.stage = stage;
+		stage.getIcons().add(new Image("icons/logo_small.png"));
 		app = this;
 		navigate("/chooser-view.fxml");
 		stage.show();
@@ -114,14 +116,14 @@ public class App extends Application {
 	public static void navigate(String file, Object argument) {
         try {
 			var loader = new FXMLLoader(App.class.getResource(file));
-            var scene = (Parent) loader.load();
-			scene.resize(600, 600);
+            var parent = (Parent) loader.load();
+			var scene = new Scene(parent, 800, 800);
 			Controller<Object> controller = loader.getController();
 			controller.setModule(module);
 			controller.setArgument(argument);
 			controller.init();
 			scene.getStylesheets().add("base.css");
-			stage.setScene(new Scene(scene));
+			stage.setScene(scene);
 			stage.setOnCloseRequest(event -> {
 				System.exit(0);
 			});

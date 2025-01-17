@@ -5,12 +5,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="jdoc.recent.presentation.ChooserController" fx:id="container" style="-fx-background-color: -fx-surface">
     <padding>
         <Insets bottom="20.0" left="60.0" right="60.0" top="20.0"/>
     </padding>
-    <Text style="-fx-font-size: 60">jdoc</Text>
+    <ImageView fitWidth="303" fitHeight="100">
+        <Image url="icons/logo.png"/>
+    </ImageView>
     <TextField fx:id="connectField" promptText="Host URL" focusTraversable="false"/>
     <Text fx:id="errorMessageText"/>
     <FlowPane fx:id="recentContainer" hgap="12" vgap="12" alignment="CENTER">
