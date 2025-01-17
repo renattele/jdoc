@@ -115,6 +115,7 @@ public class App extends Application {
         try {
 			var loader = new FXMLLoader(App.class.getResource(file));
             var scene = (Parent) loader.load();
+			scene.resize(600, 600);
 			Controller<Object> controller = loader.getController();
 			controller.setModule(module);
 			controller.setArgument(argument);
