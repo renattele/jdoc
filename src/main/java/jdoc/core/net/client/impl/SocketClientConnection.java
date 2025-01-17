@@ -31,7 +31,6 @@ public class SocketClientConnection implements ClientConnection, Runnable {
     public void send(Message message) {
         var encoded = message.toByteArray();
         try {
-            System.out.println(socket.getPort());
             out.write(encoded);
             out.flush();
             isConnected = true;

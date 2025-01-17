@@ -121,7 +121,9 @@ public class App extends Application {
 			controller.init();
 			scene.getStylesheets().add("base.css");
 			stage.setScene(new Scene(scene));
-			stage.setOnCloseRequest(event -> stage.close());
+			stage.setOnCloseRequest(event -> {
+				System.exit(0);
+			});
         } catch (IOException e) {
 			log.error(e.toString(), e);
         }
