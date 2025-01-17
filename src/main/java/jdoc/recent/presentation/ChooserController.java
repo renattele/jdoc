@@ -43,12 +43,7 @@ public class ChooserController extends Controller<Object> {
         connectField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 var url = connectField.getText();
-                try (var ignored = clientConnectionDataSource.get(url)) {
-                } catch (Exception e) {
-                    errorMessageText.setText("Unable to connect to " + url);
-                    errorMessageText.setVisible(true);
-                    return;
-                }
+                if (!isConnectionAvailable(url)) return;
                 var document = new RecentDocument(
                         RecentDocument.Type.Remote,
                         connectField.getText(),
@@ -62,6 +57,16 @@ public class ChooserController extends Controller<Object> {
                 errorMessageText.setVisible(false);
             }
         });
+    }
+
+    private boolean isConnectionAvailable(String url) {
+        /*try (var ignored = clientConnectionDataSource.get(url)) {
+        } catch (Exception e) {
+            errorMessageText.setText("Unable to connect to " + url);
+            errorMessageText.setVisible(true);
+            return false;
+        }*/
+        return true;
     }
 
     private void updateRecentUrls() {
@@ -134,6 +139,7 @@ public class ChooserController extends Controller<Object> {
     private void onRecentDocumentClick(RecentDocument document) {
         Optional<File> localFile;
         if (document.type() == RecentDocument.Type.Remote) {
+            if (!isConnectionAvailable(document.remoteUrl())) return;
             localFile = App.saveFile(markdownFileOptions());
         } else {
             localFile = Optional.of(new File(document.localUrl()));

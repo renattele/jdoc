@@ -104,6 +104,11 @@ public class ClientConnectionGenericDataSource<CHANGE extends Change<?, CHANGE>>
         connection.close();
     }
 
+    @Override
+    public boolean isConnected() {
+        return connection.isConnected();
+    }
+
     @AllArgsConstructor
     public static class Factory<CHANGE extends Change<?, CHANGE>> implements RemoteDataSource.Factory<CHANGE> {
         private final Serializer serializer;

@@ -25,7 +25,7 @@ public class UserRow extends HBox implements DataSource<UserChange> {
 
     public UserRow(UserList userList) {
         userList.addSource(this);
-        Flowable.interval(10, TimeUnit.SECONDS).subscribe(i -> {
+        Flowable.interval(3, TimeUnit.SECONDS).subscribe(i -> {
             currentUser = new User(currentUser.name(), currentUser.id());
             apply(new PutUserChange(currentUser));
         });
@@ -47,9 +47,9 @@ public class UserRow extends HBox implements DataSource<UserChange> {
         Platform.runLater(() -> {
             var children = getChildren();
             children.removeIf(child -> !(child instanceof UserAvatarWithTextField));
-            System.out.println("USERS: " + userListCopy + ". CHANGE: " + change);
             for (User user : userListCopy.values()) {
                 if (user.equals(currentUser)) continue;
+                if (System.currentTimeMillis() - user.lastSeen() > 5000) continue;
                 children.add(0, new UserAvatar(user.name()));
             }
         });

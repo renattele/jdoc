@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Slf4j
 public class BlockingDataSource<CHANGE extends Change<?, CHANGE>> implements DataSource<CHANGE> {
-    private final DataSource<CHANGE> origin;
+    public final DataSource<CHANGE> origin;
     private final Flowable<CHANGE> changes;
     private volatile CHANGE lastChange;
 

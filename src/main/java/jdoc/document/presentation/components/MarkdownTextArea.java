@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class MarkdownTextArea extends StyleClassedTextArea {
-    public static CssTextMatch ITALIC = new CssTextMatch("\\*(.*?)\\*", "italic");
-    public static CssTextMatch BOLD = new CssTextMatch("\\*\\*(.*?)\\*\\*", "bold");
-    public static CssTextMatch BOLDITALIC = new CssTextMatch("\\*\\*\\*(.*?)\\*\\*\\*", "bold_italic");
+    public static CssTextMatch ITALIC = new CssTextMatch("(?<!\\*)\\*(?!\\*|\\*\\*)(.+?)\\*(?!\\*)\n", "italic");
+    public static CssTextMatch BOLD = new CssTextMatch("(?<!\\*)\\*\\*(?!\\*)(.+?)\\*\\*(?!\\*)", "bold");
+    public static CssTextMatch BOLD_ITALIC = new CssTextMatch("(?<!\\*)\\*\\*\\*(.+?)\\*\\*\\*(?!\\*)\n", "bold_italic");
     public static CssTextMatch HEADER1 = new CssTextMatch("#(.*?)\\n", "header1");
     public static CssTextMatch HEADER2 = new CssTextMatch("##(.*?)\\n", "header2");
     public static CssTextMatch HEADER3 = new CssTextMatch("###(.*?)\\n", "header3");
@@ -35,7 +35,7 @@ public class MarkdownTextArea extends StyleClassedTextArea {
             CODE,
             ITALIC,
             BOLD,
-            BOLDITALIC,
+            BOLD_ITALIC,
             STRIKETHROUGH,
             BLOCKQUOTE
     );

@@ -47,7 +47,6 @@ public class App extends Application {
 	public void start(Stage stage) {
 		initModule();
 		App.stage = stage;
-		stage.setOnCloseRequest(event -> stage.close());
 		app = this;
 		navigate("/chooser-view.fxml");
 		stage.show();
@@ -122,6 +121,7 @@ public class App extends Application {
 			controller.init();
 			scene.getStylesheets().add("base.css");
 			stage.setScene(new Scene(scene));
+			stage.setOnCloseRequest(event -> stage.close());
         } catch (IOException e) {
 			log.error(e.toString(), e);
         }

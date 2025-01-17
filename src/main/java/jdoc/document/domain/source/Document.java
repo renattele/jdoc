@@ -4,6 +4,8 @@ import jdoc.document.domain.change.TextChange;
 import jdoc.core.domain.source.DataSource;
 import jdoc.core.domain.source.DataSourceOrchestrator;
 
+import java.util.List;
+
 public interface Document extends DataSourceOrchestrator<TextChange> {
     static Document wrap(DataSourceOrchestrator<TextChange> orchestrator) {
         return new Document() {
@@ -15,6 +17,11 @@ public interface Document extends DataSourceOrchestrator<TextChange> {
             @Override
             public void removeSource(DataSource<TextChange> source) {
                 orchestrator.removeSource(source);
+            }
+
+            @Override
+            public List<DataSource<TextChange>> originalSources() {
+                return orchestrator.originalSources();
             }
 
             @Override

@@ -12,11 +12,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 public class SocketServerConnection implements ServerConnection, Runnable {
     private final int port;
-    private final FlowableList<ClientHandler> clients = new FlowableList<>();
+    private final FlowableList<ClientHandler> clients = new FlowableList<>(new CopyOnWriteArrayList<>());
     private final PublishProcessor<Message> messages = PublishProcessor.create();
     private final Flowable<Message> messagesCached = messages.cache();
     private final PublishProcessor<ClientHandler> newClients = PublishProcessor.create();
@@ -109,14 +110,16 @@ public class SocketServerConnection implements ServerConnection, Runnable {
 
         @Override
         public void run() {
-            try (this) {
-                while (socket.isConnected()) {
-                    var incoming = Message.from(in);
-                    if (incoming == null) continue;
-                    broadcast(this, incoming);
+            try {
+                try (this) {
+                    while (socket.isConnected()) {
+                        var incoming = Message.from(in);
+                        if (incoming == null) continue;
+                        broadcast(this, incoming);
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
             } finally {
                 clients.remove(this);
             }

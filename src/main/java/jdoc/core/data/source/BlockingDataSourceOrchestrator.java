@@ -11,7 +11,7 @@ import java.util.*;
 @Slf4j
 public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> implements DataSourceOrchestrator<CHANGE> {
     private final DisposableList disposables = new DisposableList();
-    private final Set<DataSource<CHANGE>> sources = new HashSet<>();
+    private final Set<BlockingDataSource<CHANGE>> sources = new HashSet<>();
     private CHANGE reducedChange;
     private final Object lock = new Object();
 
@@ -54,6 +54,11 @@ public class BlockingDataSourceOrchestrator<CHANGE extends Change<?, CHANGE>> im
     @Override
     public void removeSource(DataSource<CHANGE> source) {
         sources.removeIf(s -> s.equals(source));
+    }
+
+    @Override
+    public List<DataSource<CHANGE>> originalSources() {
+        return sources.stream().map(source -> source.origin).toList();
     }
 
     @Override

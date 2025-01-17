@@ -8,6 +8,8 @@ public interface ClientConnection extends AutoCloseable {
 
     Flowable<Message> incoming();
 
+    boolean isConnected();
+
     @Override
     String toString();
 }

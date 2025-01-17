@@ -4,6 +4,8 @@ import jdoc.core.domain.source.DataSource;
 import jdoc.core.domain.source.DataSourceOrchestrator;
 import jdoc.user.domain.change.UserChange;
 
+import java.util.List;
+
 public interface UserList extends DataSourceOrchestrator<UserChange> {
     static UserList wrap(DataSourceOrchestrator<UserChange> orchestrator) {
         return new UserList() {
@@ -15,6 +17,11 @@ public interface UserList extends DataSourceOrchestrator<UserChange> {
             @Override
             public void removeSource(DataSource<UserChange> source) {
                 orchestrator.removeSource(source);
+            }
+
+            @Override
+            public List<DataSource<UserChange>> originalSources() {
+                return orchestrator.originalSources();
             }
 
             @Override

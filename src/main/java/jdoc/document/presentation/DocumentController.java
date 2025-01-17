@@ -5,8 +5,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jdoc.core.di.Injected;
+import jdoc.core.domain.source.RemoteDataSource;
 import jdoc.core.presentation.Controller;
 import jdoc.document.domain.source.LocalTextSource;
+import jdoc.document.presentation.components.ConnectedStatusCard;
 import jdoc.recent.domain.RecentDocument;
 import jdoc.user.domain.UserRepository;
 import jdoc.document.domain.DocumentRepository;
@@ -27,7 +29,7 @@ public class DocumentController extends Controller<RecentDocument> {
     private MarkdownTextArea textArea;
 
     @FXML
-    private HBox clientsContainer;
+    private HBox topContainer;
 
     @Injected
     private DocumentRepository documentRepository;
@@ -45,6 +47,15 @@ public class DocumentController extends Controller<RecentDocument> {
         var recentDocument = argument;
         var document = documentRepository.getRemoteDocument(recentDocument.remoteUrl());
         document.addSource(areaTextSource);
+        var remoteDataSourceList = document
+                .originalSources()
+                .stream()
+                .filter(source -> source instanceof RemoteDataSource<?>)
+                .toList();
+        if (!remoteDataSourceList.isEmpty()) {
+            var remoteDataSource = (RemoteDataSource<?>) remoteDataSourceList.get(0);
+            topContainer.getChildren().add(0, new ConnectedStatusCard(remoteDataSource::isConnected));
+        }
         try {
             var emitFromFile = recentDocument.type() == RecentDocument.Type.Local;
             document.addSource(localTextSourceFactory.create(new File(recentDocument.localUrl()), emitFromFile));
@@ -52,6 +63,6 @@ public class DocumentController extends Controller<RecentDocument> {
             log.error(e.toString(), e);
         }
         var userList = userRepository.getUsersByUrl(recentDocument.remoteUrl());
-        clientsContainer.getChildren().add(new UserRow(userList));
+        topContainer.getChildren().add(new UserRow(userList));
     }
 }

@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.ReplayProcessor;
 import jdoc.core.net.client.ClientConnection;
 import jdoc.core.net.protocol.Message;
+import jdoc.core.util.DisposableList;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -15,6 +16,7 @@ public class SocketClientConnection implements ClientConnection, Runnable {
     private final InputStream in;
     private final OutputStream out;
     private final ReplayProcessor<Message> messages = ReplayProcessor.create(128);
+    private boolean isConnected = false;
     private final Thread thread;
 
     public SocketClientConnection(String address, int port) throws IOException {
@@ -29,16 +31,24 @@ public class SocketClientConnection implements ClientConnection, Runnable {
     public void send(Message message) {
         var encoded = message.toByteArray();
         try {
+            System.out.println(socket.getPort());
             out.write(encoded);
             out.flush();
+            isConnected = true;
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+            isConnected = false;
         }
     }
 
     @Override
     public Flowable<Message> incoming() {
         return messages;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return socket.isConnected() && isConnected;
     }
 
     @Override
