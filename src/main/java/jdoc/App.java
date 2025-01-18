@@ -41,7 +41,7 @@ public class App extends Application {
 
 	@FXML
 	public void exitApplication(ActionEvent event) {
-		Platform.exit();
+		System.exit(0);
 	}
 
 	@Override
