@@ -22,9 +22,7 @@ public class MapClientConnectionDataSource implements ClientConnectionDataSource
             connections.remove(url);
         }
         if (!connections.containsKey(url)) {
-            var uri = URI.create(url);
-            var port = uri.getPort() < 0 ? ProtocolConstants.PORT : uri.getPort();
-            connections.put(url, new SocketClientConnection(uri.getHost(), port));
+            connections.put(url, new SocketClientConnection(url, ProtocolConstants.PORT));
         }
         return connections.get(url);
     }
